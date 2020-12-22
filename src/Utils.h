@@ -1,6 +1,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include "HTTPRequest.h"
+
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -17,6 +19,7 @@ namespace httplib
 	{
 		extern std::unordered_set<std::string> valid_req_types;
 		bool checkRequestType(const char *type);
+		void decodeRequestUrl(const char *url, httplib::HTTPRequest &req);
 	}
 }
 

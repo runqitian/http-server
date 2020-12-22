@@ -13,19 +13,24 @@ namespace httplib
 
 		std::string toString();
 
-		void setBasicInfo(const char *type, const char *url, const char *version);
+		void setUrl(const char *url);
 		std::string getUrl();
+		void setType(const char *type);
 		std::string getType();
+		void setVersion(const char *version);
 		std::string getVersion();
 
 		void setHeader(std::string key, std::string val);
 		std::string getHeader(std::string key);
+
+		void setParam(const char *key, const char *val);
 		
 	private:
 		std::string version;
 		std::string type;
 		std::string url;
 		std::unordered_map<std::string, std::string> header;
+		std::unordered_map<std::string, std::string> params;
 		
 
 	};

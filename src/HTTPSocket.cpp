@@ -35,7 +35,11 @@ httplib::HTTPRequest* httplib::HTTPSocket::readRequest()
 	{
 		throw std::runtime_error("request header format invalid!");
 	}
-	req -> setBasicInfo(req_type, url, version);
+
+	httplib::rules::decodeRequestUrl(url, *req);
+	req -> setType(req_type);
+	req -> setVersion(version);
+
 	delete req_type;
 	delete url;
 	delete version;

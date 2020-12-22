@@ -91,7 +91,7 @@ void httplib::Server::connectionThreadFunc(const int sockfd)
 	{
 		httplib::HTTPRequest *req = sock.readRequest();
 
-		std::cout << req -> getType() << " " << req -> getUrl() << std::endl;
+		std::cout << req -> toString() << std::endl;
 
 		std::string tar(req -> getType() + " " + req -> getUrl());
 
