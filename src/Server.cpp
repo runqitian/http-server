@@ -1,12 +1,19 @@
 #include "Server.h"
+#include "HTTPSocket.h"
+#include "HTTPResponse.h"
+#include "HTTPRequest.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <unistd.h>
 #include <stdexcept>
 #include <thread>
+
+#include <string>
+#include <iostream>
 
 httplib::Server::Server()
 {
@@ -54,12 +61,33 @@ void httplib::Server::listen(const char* host, uint16_t port)
 			printf("connection failed\n");
 			continue;
 		}
-		std::thread t(&httplib::Server::http_connection_thread, in_sockfd);
+		std::thread t(&httplib::Server::connectionThreadFunc, in_sockfd);
 		t.detach();
 	}
 }
 
-void httplib::Server::http_connection_thread(const int sockfd)
+void httplib::Server::connectionThreadFunc(const int sockfd)
 {
 	printf("in thread, sockfd is %d\n", sockfd);
+	httplib::HTTPSocket sock(sockfd);
+	try
+	{
+		httplib::HTTPRequest *req = sock.readRequest();
+		std::cout << "get request" << std::endl;
+		std::cout << req -> toString() << std::endl;
+		httplib::HTTPResponse resp;
+		resp.setVersion("HTTP/1.1");
+		resp.setStatus("200", "OK");
+		std::string s("hello, world!");
+
+		resp.setHeader("Content-Type", "text/html; charset=utf-8");
+		resp.setHeader("Content-Length", std::to_string(s.size()));
+		resp.setBody(s.c_str(), s.size());
+		sock.sendResponse(resp);
+	}
+	catch(std::exception& e)
+	{
+		std::cout << e.what() << std::endl;
+		close(sockfd);
+	}
 }

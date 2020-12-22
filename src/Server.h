@@ -11,7 +11,7 @@ namespace httplib{
 
 		Server();
 		void listen(const char* host, uint16_t port);
-		static void http_connection_thread(const int sockfd);
+		static void connectionThreadFunc(const int sockfd);
 	};
 
 }
