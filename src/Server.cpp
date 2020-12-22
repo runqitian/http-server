@@ -1,18 +1,39 @@
 #include "Server.h"
+#include "HTTPSocket.h"
+#include "HTTPResponse.h"
+#include "HTTPRequest.h"
+#include "Utils.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <unistd.h>
 #include <stdexcept>
 #include <thread>
 
-httplib::Server::Server()
-{
+#include <string>
+#include <iostream>
+#include <mutex>
 
+namespace httplib{
+	int thread_count = 0;
+	std::mutex thread_lock;
 }
 
+httplib::Server::Server()
+{
+	httplib::initializeGlobalVar();
+}
+
+void httplib::Server::Get(const char *url, void (*func)(httplib::HTTPRequest&, httplib::HTTPResponse&))
+{
+	std::string *arg = new std::string;
+	*arg = std::string("GET ") + std::string(url);
+	registry_table[*arg] = func;
+	std::cout << "GET " << std::string(url) << std::endl;
+}
 
 void httplib::Server::listen(const char* host, uint16_t port)
 {	
@@ -54,12 +75,43 @@ void httplib::Server::listen(const char* host, uint16_t port)
 			printf("connection failed\n");
 			continue;
 		}
-		std::thread t(&httplib::Server::http_connection_thread, in_sockfd);
+		std::thread t(&httplib::Server::connectionThreadFunc, this, in_sockfd);
 		t.detach();
 	}
 }
 
-void httplib::Server::http_connection_thread(const int sockfd)
+void httplib::Server::connectionThreadFunc(const int sockfd)
 {
-	printf("in thread, sockfd is %d\n", sockfd);
+	thread_lock.lock();
+	thread_count += 1;
+	thread_lock.unlock();
+	printf("current thread count %d, sockfd is %d\n", thread_count, sockfd);
+	httplib::HTTPSocket sock(sockfd);
+	try
+	{
+		httplib::HTTPRequest *req = sock.readRequest();
+
+		std::cout << req -> getType() << " " << req -> getUrl() << std::endl;
+
+		std::string tar(req -> getType() + " " + req -> getUrl());
+
+		if (registry_table.find(tar) == registry_table.end())
+		{
+			printf("not found\n");
+			return;
+		}
+
+		void (*func)(httplib::HTTPRequest&, httplib::HTTPResponse&) = registry_table[tar];
+		httplib::HTTPResponse resp;
+		func(*req, resp);
+		sock.sendResponse(resp);
+	}
+	catch(std::exception& e)
+	{
+		std::cout << e.what() << std::endl;
+		close(sockfd);
+	}
+	thread_lock.lock();
+	thread_count -= 1;
+	thread_lock.unlock();
 }
