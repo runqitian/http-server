@@ -1,4 +1,5 @@
 #include "HTTPSocket.h"
+#include "Utils.h"
 
 #include <cstring>
 #include <cstdio>
@@ -30,6 +31,14 @@ httplib::HTTPRequest* httplib::HTTPSocket::readRequest()
 	{
 		throw std::runtime_error("request header format invalid!");
 	}
+	if (!httplib::rules::checkRequestType(req_type))
+	{
+		throw std::runtime_error("request header format invalid!");
+	}
+	req -> setBasicInfo(req_type, url, version);
+	delete req_type;
+	delete url;
+	delete version;
 
 	while(true)
 	{

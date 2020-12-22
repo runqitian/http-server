@@ -1,5 +1,9 @@
 #include "HTTPResponse.h"
+
 #include <cstring>
+#include <cstdlib>
+
+#include <stdexcept>
 
 httplib::HTTPResponse::HTTPResponse()
 {}
@@ -37,7 +41,8 @@ std::string httplib::HTTPResponse::getHeader(std::string key)
 
 void httplib::HTTPResponse::setBody(const char *arg_body, int arg_length)
 {
-	body = arg_body;
+	body = (char *)malloc(sizeof(char)*arg_length);
+	memcpy(body, arg_body, arg_length);
 	body_length = arg_length;
 }
 
@@ -50,4 +55,16 @@ void httplib::HTTPResponse::setStatus(std::string code, std::string msg)
 void httplib::HTTPResponse::setVersion(std::string version)
 {
 	this -> version = version;
+}
+
+void httplib::HTTPResponse::createHtmlResponse(const char *text){
+	setVersion("HTTP/1.1");
+	setStatus("200", "OK");
+	setHeader("Content-Type", "text/html; charset=utf-8");
+	if (text == nullptr){
+		throw std::runtime_error("text is nullptr");
+	}
+	int len = strlen(text);
+	setHeader("Content-Length", std::to_string(len));
+	setBody(text, len);
 }

@@ -10,10 +10,21 @@ namespace httplib
 	{
 	public:
 		HTTPRequest();
+
+		std::string toString();
+
+		void setBasicInfo(const char *type, const char *url, const char *version);
+		std::string getUrl();
+		std::string getType();
+		std::string getVersion();
+
 		void setHeader(std::string key, std::string val);
 		std::string getHeader(std::string key);
-		std::string toString();
+		
 	private:
+		std::string version;
+		std::string type;
+		std::string url;
 		std::unordered_map<std::string, std::string> header;
 		
 

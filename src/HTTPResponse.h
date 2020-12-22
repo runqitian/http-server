@@ -10,6 +10,7 @@ namespace httplib
 	{
 	public:
 		HTTPResponse();
+		void createHtmlResponse(const char *text);
 		int serialize(char **arg_p);
 		void setVersion(std::string version);
 		void setHeader(std::string key, std::string val);
@@ -21,7 +22,7 @@ namespace httplib
 		std::string status_code;
 		std::string status_msg;
 		std::unordered_map<std::string, std::string> header;
-		const char *body;
+		char *body;
 		int body_length;
 	};
 }
