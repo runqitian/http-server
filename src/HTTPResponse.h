@@ -11,6 +11,7 @@ namespace httplib
 	public:
 		HTTPResponse();
 		void createHtmlResponse(const char *text);
+		void create404Response();
 		int serialize(char **arg_p);
 		void setVersion(std::string version);
 		void setHeader(std::string key, std::string val);
@@ -18,6 +19,8 @@ namespace httplib
 		void setStatus(std::string code, std::string msg);
 		void setBody(const char *arg_body, int arg_length);
 	private:
+
+		const static char *MSG404;
 		std::string version;
 		std::string status_code;
 		std::string status_msg;

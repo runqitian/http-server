@@ -5,7 +5,15 @@
 int main(){
 	httplib::Server srv;
 	srv.Get("/", [](httplib::HTTPRequest &req, httplib::HTTPResponse &resp){
-		resp.createHtmlResponse("Helloworld");
+		std::string s = "hello, ";
+		s += req.getParam("name");
+		resp.createHtmlResponse(s.c_str());
+	});
+	
+	srv.Post("/", [](httplib::HTTPRequest &req, httplib::HTTPResponse &resp){
+		std::string s = "hello, ";
+		s += req.getForm("name");
+		resp.createHtmlResponse(s.c_str());
 	});
 
 	srv.Get("/yes", [](httplib::HTTPRequest &req, httplib::HTTPResponse &resp){

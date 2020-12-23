@@ -5,6 +5,8 @@
 
 #include <stdexcept>
 
+const char *httplib::HTTPResponse::MSG404 = "404 NOT FOUND";
+
 httplib::HTTPResponse::HTTPResponse()
 {}
 
@@ -58,7 +60,6 @@ void httplib::HTTPResponse::setVersion(std::string version)
 }
 
 void httplib::HTTPResponse::createHtmlResponse(const char *text){
-	setVersion("HTTP/1.1");
 	setStatus("200", "OK");
 	setHeader("Content-Type", "text/html; charset=utf-8");
 	if (text == nullptr){
@@ -67,4 +68,12 @@ void httplib::HTTPResponse::createHtmlResponse(const char *text){
 	int len = strlen(text);
 	setHeader("Content-Length", std::to_string(len));
 	setBody(text, len);
+}
+
+void httplib::HTTPResponse::create404Response(){
+	setStatus("404", "Not Found");
+	setHeader("Content-Type", "text/html; charset=utf-8");
+	int len = strlen(MSG404);
+	setHeader("Content-Length", std::to_string(len));
+	setBody(MSG404, len);
 }

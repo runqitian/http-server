@@ -20,6 +20,8 @@
 namespace httplib{
 	int thread_count = 0;
 	std::mutex thread_lock;
+	const int CONNECTION_TIMEOUT = 5;
+	const int CONNECTION_MAX = 1000;
 }
 
 httplib::Server::Server()
@@ -33,6 +35,14 @@ void httplib::Server::Get(const char *url, void (*func)(httplib::HTTPRequest&, h
 	*arg = std::string("GET ") + std::string(url);
 	registry_table[*arg] = func;
 	std::cout << "GET " << std::string(url) << std::endl;
+}
+
+void httplib::Server::Post(const char *url, void (*func)(httplib::HTTPRequest&, httplib::HTTPResponse&))
+{
+	std::string *arg = new std::string;
+	*arg = std::string("POST ") + std::string(url);
+	registry_table[*arg] = func;
+	std::cout << "POST " << std::string(url) << std::endl;
 }
 
 void httplib::Server::listen(const char* host, uint16_t port)
@@ -85,26 +95,47 @@ void httplib::Server::connectionThreadFunc(const int sockfd)
 	thread_lock.lock();
 	thread_count += 1;
 	thread_lock.unlock();
+
 	printf("current thread count %d, sockfd is %d\n", thread_count, sockfd);
 	httplib::HTTPSocket sock(sockfd);
 	try
 	{
 		httplib::HTTPRequest *req = sock.readRequest();
-
-		std::cout << req -> getType() << " " << req -> getUrl() << std::endl;
+		httplib::HTTPResponse resp;
+		// now only support http/1.0, no persistence connection.
+		resp.setVersion("HTTP/1.0");
 
 		std::string tar(req -> getType() + " " + req -> getUrl());
-
 		if (registry_table.find(tar) == registry_table.end())
 		{
-			printf("not found\n");
-			return;
+			resp.create404Response();
+			sock.sendResponse(resp);
+			close(sockfd);
+		}
+		else
+		{
+			void (*func)(httplib::HTTPRequest&, httplib::HTTPResponse&) = registry_table[tar];
+			func(*req, resp);
+			sock.sendResponse(resp);
+			close(sockfd);
 		}
 
-		void (*func)(httplib::HTTPRequest&, httplib::HTTPResponse&) = registry_table[tar];
-		httplib::HTTPResponse resp;
-		func(*req, resp);
-		sock.sendResponse(resp);
+		// // connection set up based on http/1.1 or http/1.0
+		// resp.setVersion(req -> getVersion());
+		// if (req -> getVersion() == "HTTP/1.1")
+		// {
+		// 	if (req -> getHeader("Connection") == "keep-alive")
+		// 	{
+		// 		keep-alive = true;
+		// 		resp.setHeader("Connection", "keep-alive");
+		// 		resp.setHeader("Keep-Alive", "timeout=5, max=1000");
+		// 	}else{
+		// 		keep-alive = false;
+		// 		resp.setHeader("Connection", "close");
+		// 	}
+		// }else{
+		// 	keep-alive = false;
+		// }
 	}
 	catch(std::exception& e)
 	{
@@ -115,3 +146,4 @@ void httplib::Server::connectionThreadFunc(const int sockfd)
 	thread_count -= 1;
 	thread_lock.unlock();
 }
+
