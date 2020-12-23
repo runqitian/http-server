@@ -82,3 +82,36 @@ std::string httplib::HTTPRequest::getParam(const char *key)
 	}
 	return params[std::string(key)];
 }
+
+void httplib::HTTPRequest::setForm(const char *key, const char *val)
+{
+	form[std::string(key)] = std::string(val);
+}
+
+std::string httplib::HTTPRequest::getForm(const char *key)
+{	
+	std::string s(key);
+	if (key == nullptr){
+		return std::string("");
+	}
+	if (form.find(s) == form.end()){
+		return std::string("");
+	}
+	return form[std::string(key)];
+}
+
+
+const char* httplib::HTTPRequest::getBody()
+{
+	return body;
+}
+void httplib::HTTPRequest::setBody(char * input){
+	body = input;
+}
+
+int httplib::HTTPRequest::getBodyLen(){
+	return body_len;
+}
+void httplib::HTTPRequest::setBodyLen(int len){
+	body_len = len;
+}

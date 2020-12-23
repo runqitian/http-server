@@ -26,13 +26,26 @@ namespace httplib
 		void setParam(const char *key, const char *val);
 		std::string getParam(const char *key);
 		
+		void setForm(const char *key, const char *val);
+		std::string getForm(const char *key);
+
+		void setBody(char * input);
+		const char* getBody();
+
+		void setBodyLen(int len);
+		int getBodyLen();
+
 	private:
 		std::string version;
 		std::string type;
 		std::string url;
 		std::unordered_map<std::string, std::string> header;
 		std::unordered_map<std::string, std::string> params;
-		
+		std::unordered_map<std::string, std::string> form;
+		char *body;
+		int body_len;
+
+
 
 	};
 }

@@ -20,7 +20,10 @@ namespace httplib {
 		int sbuff_size;
 
 		std::string readline();
+		void readBytes(char *dest, int len);
 		void sendBytes(const char *msg, const unsigned int len);
+
+		void readRequestBody(httplib::HTTPRequest &req);
 	};
 
 }

@@ -17,6 +17,7 @@ namespace httplib{
 
 		Server();
 		void Get(const char *url, void (*func)(httplib::HTTPRequest&, httplib::HTTPResponse&));
+		void Post(const char *url, void (*func)(httplib::HTTPRequest&, httplib::HTTPResponse&));
 		void listen(const char* host, uint16_t port);
 		void connectionThreadFunc(const int sockfd);
 	};

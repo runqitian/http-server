@@ -44,6 +44,7 @@ httplib::HTTPRequest* httplib::HTTPSocket::readRequest()
 	delete url;
 	delete version;
 
+	// read header
 	while(true)
 	{
 		line = readline();
@@ -82,7 +83,40 @@ httplib::HTTPRequest* httplib::HTTPSocket::readRequest()
 			req -> setHeader(key, line.substr(idx, line.size() - idx));
 		}
 	}
+
+	readRequestBody(*req);
+
+	if (req -> getType() == "GET")
+	{
+		return req;
+	}
+	else if (req -> getType() == "POST")
+	{
+		if (req -> getHeader("Content-Type") == "application/x-www-form-urlencoded")
+		{
+			httplib::rules::decodeFormUrlencoded(req -> getBody(), *req);
+		}
+	}
+
 	return req;
+}
+
+void httplib::HTTPSocket::readRequestBody(httplib::HTTPRequest &req)
+{
+	if (req.getHeader("Content-Length") != ""){
+		size_t test_tmp;
+		int cont_len = std::stoi(req.getHeader("Content-Length"), &test_tmp, 10);
+		if (test_tmp != req.getHeader("Content-Length").size()){
+			throw std::runtime_error("request header format invalid! Contetn-Length invalid!");
+		}
+		char *buff_tmp = (char *)malloc(sizeof(char) * cont_len);
+		readBytes(buff_tmp, cont_len);
+		req.setBody(buff_tmp);
+		req.setBodyLen(cont_len);
+	}else{
+		req.setBody(nullptr);
+		req.setBodyLen(0);
+	}
 }
 
 void httplib::HTTPSocket::sendResponse(httplib::HTTPResponse &resp)
@@ -125,7 +159,33 @@ std::string httplib::HTTPSocket::readline()
 	return msg;
 }
 
-void httplib::HTTPSocket::sendBytes(const char *msg, const unsigned int len){
+void httplib::HTTPSocket::readBytes(char *dest, int len)
+{
+	if (len == 0){
+		return;
+	}
+	if (sbuff_size == 0){
+		if ((sbuff_size = recv(sockfd, sbuff, BUFF_SIZE, 0)) <= 0) {
+			throw std::runtime_error("Connection closed!");
+		}
+	}
+	int need = len;
+	char *p = dest;
+	while (sbuff_size < need){
+		memcpy(p, sbuff, sbuff_size);
+		need -= sbuff_size;
+		p += sbuff_size;
+		if ((sbuff_size = recv(sockfd, sbuff, BUFF_SIZE, 0)) <= 0){
+			throw std::runtime_error("Connection closed!");
+		}
+	}
+	memcpy(p, sbuff, need);
+	memmove(sbuff, sbuff + need, sbuff_size - need);
+	sbuff_size = sbuff_size - need;
+}
+
+void httplib::HTTPSocket::sendBytes(const char *msg, const unsigned int len)
+{
 	unsigned int remain = len;
 	const char *p = msg;
 	while(remain > BUFF_SIZE){
@@ -143,5 +203,7 @@ void httplib::HTTPSocket::sendBytes(const char *msg, const unsigned int len){
 		}
 	}
 }
+
+
 
 
