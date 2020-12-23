@@ -88,23 +88,30 @@ void httplib::Server::connectionThreadFunc(const int sockfd)
 	printf("current thread count %d, sockfd is %d\n", thread_count, sockfd);
 	httplib::HTTPSocket sock(sockfd);
 	try
-	{
-		httplib::HTTPRequest *req = sock.readRequest();
-
-		std::cout << req -> toString() << std::endl;
-
-		std::string tar(req -> getType() + " " + req -> getUrl());
-
-		if (registry_table.find(tar) == registry_table.end())
+	{	while(true)
 		{
-			printf("not found\n");
-			return;
-		}
+			httplib::HTTPRequest *req = sock.readRequest();
+			std::cout << req -> toString() << std::endl;
 
-		void (*func)(httplib::HTTPRequest&, httplib::HTTPResponse&) = registry_table[tar];
-		httplib::HTTPResponse resp;
-		func(*req, resp);
-		sock.sendResponse(resp);
+			std::string tar(req -> getType() + " " + req -> getUrl());
+			if (registry_table.find(tar) == registry_table.end())
+			{
+				printf("not found\n");
+				return;
+			}
+
+			void (*func)(httplib::HTTPRequest&, httplib::HTTPResponse&) = registry_table[tar];
+			httplib::HTTPResponse resp;
+			func(*req, resp);
+			sock.sendResponse(resp);
+			close(sockfd);
+			break;
+			if (req -> getHeader("Connection") != "keep-alive")
+			{
+				break;
+			}
+
+		}
 	}
 	catch(std::exception& e)
 	{

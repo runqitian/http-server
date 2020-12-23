@@ -66,8 +66,19 @@ std::string httplib::HTTPRequest::getVersion()
 	return version;
 }
 
-void httplib::HTTPRequest::setParam(const char *key, const char *val){
-	std::string *k = new std::string(key);
-	std::string *v = new std::string(val);
-	params[*k] = *v;
+void httplib::HTTPRequest::setParam(const char *key, const char *val)
+{
+	params[std::string(key)] = std::string(val);
+}
+
+std::string httplib::HTTPRequest::getParam(const char *key)
+{	
+	std::string s(key);
+	if (key == nullptr){
+		return std::string("");
+	}
+	if (params.find(s) == params.end()){
+		return std::string("");
+	}
+	return params[std::string(key)];
 }

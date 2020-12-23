@@ -24,6 +24,7 @@ namespace httplib
 		std::string getHeader(std::string key);
 
 		void setParam(const char *key, const char *val);
+		std::string getParam(const char *key);
 		
 	private:
 		std::string version;
