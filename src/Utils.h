@@ -9,18 +9,14 @@
 
 namespace httplib
 {
-	void initializeGlobalVar();
-
+	namespace constant
+	{
+		extern const std::unordered_set<std::string> REQUEST_TYPES;
+		extern const std::unordered_set<std::string> HTTP_VERSIONS;
+	}
 	namespace utils
 	{
 		std::string jsonify(std::unordered_map<std::string, std::string> dict);
-	}
-	namespace rules
-	{
-		extern std::unordered_set<std::string> valid_req_types;
-		bool checkRequestType(const char *type);
-		void decodeRequestUrl(const char *url, httplib::HTTPRequest &req);
-		void decodeFormUrlencoded(const char *input, httplib::HTTPRequest &req);
 	}
 }
 

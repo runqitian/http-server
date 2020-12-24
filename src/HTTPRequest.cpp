@@ -1,5 +1,7 @@
 #include "HTTPRequest.h"
 
+#include <cstring>
+
 #include <string>
 #include <unordered_map>
 
@@ -21,13 +23,13 @@ std::string httplib::HTTPRequest::toString(){
 	return output;
 }
 
-void httplib::HTTPRequest::setHeader(std::string key, std::string val)
+void httplib::HTTPRequest::setHeader(const std::string &key, const std::string &val)
 {
 	header[key] = val;
 }
 
 
-std::string httplib::HTTPRequest::getHeader(std::string key)
+std::string httplib::HTTPRequest::getHeader(const std::string &key)
 {
 	if (header.find(key) == header.end())
 	{
@@ -36,9 +38,44 @@ std::string httplib::HTTPRequest::getHeader(std::string key)
 	return header[key];
 }
 
-void httplib::HTTPRequest::setUrl(const char *url)
+void httplib::HTTPRequest::decodeUrl(const std::string &url)
 {
-	this -> url = std::string(url);
+	int idx;
+	if ((idx = url.find('?')) == -1) {
+		this -> url = url;
+		return;
+	}
+	this -> url = url.substr(0, idx);
+	const char *p = url.c_str() + idx + 1;
+	std::string key;
+	std::string val;
+	bool readKey = true;
+	while(*p != 0)
+	{
+		if (readKey){
+			if (*p == '='){
+				readKey = false;
+			}else{
+				key += *p;
+			}
+			p++;
+			continue;
+		}else{
+			if (*p == '&'){
+				readKey = true;
+				this -> setParam(key, val);
+				key = "";
+				val = "";
+			}else{
+				val += *p;
+			}
+			p++;
+			continue;
+		}
+	}
+	if (!readKey){
+		this -> setParam(key, val);
+	}
 }
 
 std::string httplib::HTTPRequest::getUrl()
@@ -46,9 +83,9 @@ std::string httplib::HTTPRequest::getUrl()
 	return url;
 }
 
-void httplib::HTTPRequest::setType(const char *type)
+void httplib::HTTPRequest::setType(const std::string &type)
 {
-	this -> type = std::string(type);
+	this -> type = type;
 }
 
 std::string httplib::HTTPRequest::getType()
@@ -56,9 +93,9 @@ std::string httplib::HTTPRequest::getType()
 	return type;
 }
 
-void httplib::HTTPRequest::setVersion(const char *version)
+void httplib::HTTPRequest::setVersion(const std::string &version)
 {
-	this -> version = std::string(version);
+	this -> version = version;
 }
 
 std::string httplib::HTTPRequest::getVersion()
@@ -66,52 +103,88 @@ std::string httplib::HTTPRequest::getVersion()
 	return version;
 }
 
-void httplib::HTTPRequest::setParam(const char *key, const char *val)
+void httplib::HTTPRequest::setParam(const std::string &key, const std::string &val)
 {
-	params[std::string(key)] = std::string(val);
+	params[key] = val;
 }
 
-std::string httplib::HTTPRequest::getParam(const char *key)
+std::string httplib::HTTPRequest::getParam(const std::string &key)
 {	
-	std::string s(key);
-	if (key == nullptr){
+	if (params.find(key) == params.end()){
 		return std::string("");
 	}
-	if (params.find(s) == params.end()){
-		return std::string("");
-	}
-	return params[std::string(key)];
+	return params[key];
 }
 
-void httplib::HTTPRequest::setForm(const char *key, const char *val)
+void httplib::HTTPRequest::setForm(const std::string &key, const std::string &val)
 {
-	form[std::string(key)] = std::string(val);
+	form[key] = val;
 }
 
-std::string httplib::HTTPRequest::getForm(const char *key)
+std::string httplib::HTTPRequest::getForm(const std::string &key)
 {	
-	std::string s(key);
-	if (key == nullptr){
+	if (form.find(key) == form.end()){
 		return std::string("");
 	}
-	if (form.find(s) == form.end()){
-		return std::string("");
-	}
-	return form[std::string(key)];
+	return form[key];
 }
 
 
-const char* httplib::HTTPRequest::getBody()
+const char* httplib::HTTPRequest::getBodyPointer()
 {
 	return body;
-}
-void httplib::HTTPRequest::setBody(char * input){
-	body = input;
 }
 
 int httplib::HTTPRequest::getBodyLen(){
 	return body_len;
 }
-void httplib::HTTPRequest::setBodyLen(int len){
+
+void httplib::HTTPRequest::setBody(const char *pbody, const int len){
+	if (pbody == nullptr){
+		free(body);
+		body = nullptr;
+		body_len = 0;
+		return;
+	}
+	free(body);
+	body = (char *)malloc(sizeof(char) * len);
+	memcpy(body, pbody, len);
 	body_len = len;
+}
+
+void httplib::HTTPRequest::decodeFormUrlencoded()
+{
+	if (body == nullptr)
+		return;
+	const char *p = body;
+	std::string key;
+	std::string val;
+	bool readKey = true;
+	int idx = 0;
+	while(p - body < body_len)
+	{
+		if (readKey){
+			if (*p == '='){
+				readKey = false;
+			}else{
+				key += *p;
+			}
+			p++;
+			continue;
+		}else{
+			if (*p == '&'){
+				readKey = true;
+				this -> setForm(key, val);
+				key = "";
+				val = "";
+			}else{
+				val += *p;
+			}
+			p++;
+			continue;
+		}
+	}
+	if (!readKey){
+		this -> setForm(key, val);
+	}
 }

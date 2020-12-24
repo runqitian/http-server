@@ -10,7 +10,7 @@ const char *httplib::HTTPResponse::MSG404 = "404 NOT FOUND";
 httplib::HTTPResponse::HTTPResponse()
 {}
 
-int httplib::HTTPResponse::serialize(char **arg_p)
+int httplib::HTTPResponse::serialize(char **pdes)
 {
 	std::string output;
 	output += version + " " + status_code + " " + status_msg + "\r\n";
@@ -19,21 +19,21 @@ int httplib::HTTPResponse::serialize(char **arg_p)
 		output += each.first + ": " + each.second + "\r\n";
 	}
 	output += "\r\n";
-	char *msg = (char *)malloc(sizeof(char) * (output.size() + body_length));
+	char *msg = (char *)malloc(sizeof(char) * (output.size() + body_len));
 	memcpy(msg, output.c_str(), output.size());
 	char *pbody = msg + output.size();
-	memcpy(pbody, body, body_length);
-	*arg_p = msg;
-	return output.size() + body_length;
+	memcpy(pbody, body, body_len);
+	*pdes = msg;
+	return output.size() + body_len;
 }
 
-void httplib::HTTPResponse::setHeader(std::string key, std::string val)
+void httplib::HTTPResponse::setHeader(const std::string &key, const std::string &val)
 {
 	header[key] = val;
 }
 
 
-std::string httplib::HTTPResponse::getHeader(std::string key)
+std::string httplib::HTTPResponse::getHeader(const std::string &key)
 {
 	if (header.find(key) == header.end()){
 		return "";
@@ -41,38 +41,39 @@ std::string httplib::HTTPResponse::getHeader(std::string key)
 	return header[key];
 }
 
-void httplib::HTTPResponse::setBody(const char *arg_body, int arg_length)
+void httplib::HTTPResponse::setBody(const char *pbody, int len)
 {
-	body = (char *)malloc(sizeof(char)*arg_length);
-	memcpy(body, arg_body, arg_length);
-	body_length = arg_length;
+	body = (char *)malloc(sizeof(char)*len);
+	memcpy(body, pbody, len);
+	body_len = len;
 }
 
-void httplib::HTTPResponse::setStatus(std::string code, std::string msg)
+void httplib::HTTPResponse::setStatus(const std::string &code, const std::string &msg)
 {
 	this -> status_code = code;
 	this -> status_msg = msg;
 }
 
-void httplib::HTTPResponse::setVersion(std::string version)
+void httplib::HTTPResponse::setVersion(const std::string &version)
 {
 	this -> version = version;
 }
 
-void httplib::HTTPResponse::createHtmlResponse(const char *text){
+void httplib::HTTPResponse::createHtmlResponse(const std::string &text)
+{
 	setStatus("200", "OK");
 	setHeader("Content-Type", "text/html; charset=utf-8");
-	if (text == nullptr){
-		throw std::runtime_error("text is nullptr");
-	}
-	int len = strlen(text);
+
+	int len = text.size();
 	setHeader("Content-Length", std::to_string(len));
-	setBody(text, len);
+	setBody(text.c_str(), len);
 }
 
-void httplib::HTTPResponse::create404Response(){
+void httplib::HTTPResponse::create404Response()
+{
 	setStatus("404", "Not Found");
 	setHeader("Content-Type", "text/html; charset=utf-8");
+
 	int len = strlen(MSG404);
 	setHeader("Content-Length", std::to_string(len));
 	setBody(MSG404, len);
