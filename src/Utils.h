@@ -1,8 +1,6 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include "HTTPRequest.h"
-
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
