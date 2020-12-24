@@ -23,7 +23,11 @@ namespace httplib {
 		void readBytes(char *dest, int len);
 		void sendBytes(const char *msg, const unsigned int len);
 
-		void readRequestBody(httplib::HTTPRequest &req);
+		void _readHeader(httplib::HTTPRequest &req);
+		void _readBody(httplib::HTTPRequest &req);
+		void _extractBodyInfo(httplib::HTTPRequest &req);
+
+		bool _checkRequestValid(const std::string &type, const std::string &version);
 	};
 
 }

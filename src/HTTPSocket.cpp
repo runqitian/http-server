@@ -23,27 +23,30 @@ httplib::HTTPRequest* httplib::HTTPSocket::readRequest()
 	std::string line = readline();
 	
 	// check start line
-	char *req_type = new char[10];
-	char *url = new char[2500];
-	char *version = new char[50];
-	int temp;
-	if ((temp = sscanf(line.c_str(), "%s %s %s\r\n", req_type, url, version)) != 3)
+	char *_type = (char *)malloc(sizeof(char) * 10);
+	char *_url = (char *)malloc(sizeof(char) * 2500);
+	char *_version = (char *)malloc(sizeof(char) * 50);
+	int _tmp;
+	if ((_tmp = sscanf(line.c_str(), "%s %s %s\r\n", _type, _url, _version)) != 3 || !_checkRequestValid(_type, _version))
 	{
-		throw std::runtime_error("request header format invalid!");
+		throw std::runtime_error("Invalid request!");
 	}
-	if (!httplib::rules::checkRequestType(req_type))
-	{
-		throw std::runtime_error("request header format invalid!");
-	}
+	req -> decodeUrl(_url);
+	req -> setType(_type);
+	req -> setVersion(_version);
+	free(_type);
+	free(_url);
+	free(_version);
 
-	httplib::rules::decodeRequestUrl(url, *req);
-	req -> setType(req_type);
-	req -> setVersion(version);
+	_readHeader(*req);
+	_readBody(*req);
 
-	delete req_type;
-	delete url;
-	delete version;
-
+	return req;
+}
+	
+void httplib::HTTPSocket::_readHeader(httplib::HTTPRequest &req)
+{
+	std::string line;
 	// read header
 	while(true)
 	{
@@ -78,32 +81,17 @@ httplib::HTTPRequest* httplib::HTTPSocket::readRequest()
 			++idx;
 		}
 		if (idx == line.size()){
-			req -> setHeader(key, "");
+			req.setHeader(key, "");
 		}else{
-			req -> setHeader(key, line.substr(idx, line.size() - idx));
+			req.setHeader(key, line.substr(idx, -1));
 		}
 	}
-
-	readRequestBody(*req);
-
-	if (req -> getType() == "GET")
-	{
-		return req;
-	}
-	else if (req -> getType() == "POST")
-	{
-		if (req -> getHeader("Content-Type") == "application/x-www-form-urlencoded")
-		{
-			httplib::rules::decodeFormUrlencoded(req -> getBody(), *req);
-		}
-	}
-
-	return req;
 }
 
-void httplib::HTTPSocket::readRequestBody(httplib::HTTPRequest &req)
+void httplib::HTTPSocket::_readBody(httplib::HTTPRequest &req)
 {
 	if (req.getHeader("Content-Length") != ""){
+		// read body bytes from socket
 		size_t test_tmp;
 		int cont_len = std::stoi(req.getHeader("Content-Length"), &test_tmp, 10);
 		if (test_tmp != req.getHeader("Content-Length").size()){
@@ -111,11 +99,28 @@ void httplib::HTTPSocket::readRequestBody(httplib::HTTPRequest &req)
 		}
 		char *buff_tmp = (char *)malloc(sizeof(char) * cont_len);
 		readBytes(buff_tmp, cont_len);
-		req.setBody(buff_tmp);
-		req.setBodyLen(cont_len);
+		req.setBody(buff_tmp, cont_len);
+		free(buff_tmp);
+
+		// extract info
+		_extractBodyInfo(req);
+
 	}else{
-		req.setBody(nullptr);
-		req.setBodyLen(0);
+		req.setBody(nullptr, 0);
+	}
+}
+
+void httplib::HTTPSocket::_extractBodyInfo(httplib::HTTPRequest &req){
+	if (req.getType() == "GET")
+	{
+		// nothing to do
+	}
+	else if (req.getType() == "POST")
+	{
+		if (req.getHeader("Content-Type") == "application/x-www-form-urlencoded")
+		{
+			req.decodeFormUrlencoded();
+		}
 	}
 }
 
@@ -124,6 +129,7 @@ void httplib::HTTPSocket::sendResponse(httplib::HTTPResponse &resp)
 	char *msg;
 	int len = resp.serialize(&msg);
 	sendBytes(msg, len);
+	free(msg);
 }
 
 std::string httplib::HTTPSocket::readline()
@@ -204,6 +210,17 @@ void httplib::HTTPSocket::sendBytes(const char *msg, const unsigned int len)
 	}
 }
 
-
+bool httplib::HTTPSocket::_checkRequestValid(const std::string &type, const std::string &version)
+{
+	if (httplib::constant::REQUEST_TYPES.find(type) == httplib::constant::REQUEST_TYPES.end())
+	{
+		return false;
+	}
+	if (httplib::constant::HTTP_VERSIONS.find(version) == httplib::constant::HTTP_VERSIONS.end())
+	{
+		return false;
+	}
+	return true;
+}
 
 

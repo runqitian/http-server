@@ -10,14 +10,20 @@ namespace httplib
 	{
 	public:
 		HTTPResponse();
-		void createHtmlResponse(const char *text);
+
+		int serialize(char **pdes);
+
+		void setVersion(const std::string &version);
+		void setStatus(const std::string &code, const std::string &msg);
+
+		void setHeader(const std::string &key, const std::string &val);
+		std::string getHeader(const std::string &key);
+
+		void setBody(const char *pbody, int len);
+
+		void createHtmlResponse(const std::string &text);
 		void create404Response();
-		int serialize(char **arg_p);
-		void setVersion(std::string version);
-		void setHeader(std::string key, std::string val);
-		std::string getHeader(std::string key);
-		void setStatus(std::string code, std::string msg);
-		void setBody(const char *arg_body, int arg_length);
+
 	private:
 
 		const static char *MSG404;
@@ -25,8 +31,9 @@ namespace httplib
 		std::string status_code;
 		std::string status_msg;
 		std::unordered_map<std::string, std::string> header;
-		char *body;
-		int body_length;
+
+		char *body = nullptr;
+		int body_len = 0;
 	};
 }
 

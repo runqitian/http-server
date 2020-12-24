@@ -13,27 +13,27 @@ namespace httplib
 
 		std::string toString();
 
-		void setUrl(const char *url);
+		void decodeUrl(const std::string &url);
 		std::string getUrl();
-		void setType(const char *type);
+		void setType(const std::string &type);
 		std::string getType();
-		void setVersion(const char *version);
+		void setVersion(const std::string &version);
 		std::string getVersion();
 
-		void setHeader(std::string key, std::string val);
-		std::string getHeader(std::string key);
+		void setHeader(const std::string &key, const std::string &val);
+		std::string getHeader(const std::string &key);
 
-		void setParam(const char *key, const char *val);
-		std::string getParam(const char *key);
+		void setParam(const std::string &key, const std::string &val);
+		std::string getParam(const std::string &key);
 		
-		void setForm(const char *key, const char *val);
-		std::string getForm(const char *key);
+		void setForm(const std::string &key, const std::string &val);
+		std::string getForm(const std::string &key);
 
-		void setBody(char * input);
-		const char* getBody();
-
-		void setBodyLen(int len);
+		void setBody(const char *pbody, int len);
+		const char* getBodyPointer();
 		int getBodyLen();
+
+		void decodeFormUrlencoded();
 
 	private:
 		std::string version;
@@ -42,10 +42,8 @@ namespace httplib
 		std::unordered_map<std::string, std::string> header;
 		std::unordered_map<std::string, std::string> params;
 		std::unordered_map<std::string, std::string> form;
-		char *body;
-		int body_len;
-
-
+		char *body = nullptr;
+		int body_len = 0;
 
 	};
 }

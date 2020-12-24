@@ -25,9 +25,7 @@ namespace httplib{
 }
 
 httplib::Server::Server()
-{
-	httplib::initializeGlobalVar();
-}
+{}
 
 void httplib::Server::Get(const char *url, void (*func)(httplib::HTTPRequest&, httplib::HTTPResponse&))
 {
@@ -104,6 +102,7 @@ void httplib::Server::connectionThreadFunc(const int sockfd)
 		httplib::HTTPResponse resp;
 		// now only support http/1.0, no persistence connection.
 		resp.setVersion("HTTP/1.0");
+		resp.setHeader("Server", "httpserver");
 
 		std::string tar(req -> getType() + " " + req -> getUrl());
 		if (registry_table.find(tar) == registry_table.end())
