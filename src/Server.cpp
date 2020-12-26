@@ -27,6 +27,9 @@ namespace httplib{
 httplib::Server::Server()
 {}
 
+httplib::Server::~Server()
+{}
+
 void httplib::Server::Get(const char *url, void (*func)(httplib::HTTPRequest&, httplib::HTTPResponse&))
 {
 	std::string *arg = new std::string;

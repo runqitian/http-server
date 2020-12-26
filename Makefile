@@ -1,5 +1,5 @@
 CC = g++
-COMPILE_FLAGS = -c -fPIC -std=c++11
+COMPILE_FLAGS = -c -fPIC -std=c++17
 LD_FLAGS = -pthread -shared -Wall
 
 SRC_DIR = src
