@@ -15,10 +15,10 @@ httplib::JSON::JSON()
 
 httplib::JSON::~JSON()
 {
-	if (is_array)
-		delete (JSONArray*)json;
-	else
-		delete (JSONObject*)json;
+	// if (is_array)
+	// 	delete (JSONArray*)json;
+	// else
+	// 	delete (JSONObject*)json;
 }
 
 httplib::JSON::JSON(const JSON &src)
@@ -40,6 +40,26 @@ httplib::JSON::JSON(const JSONArray &arg)
 	*this = arg;
 }
 
+httplib::JSON::JSON(const char *arg)
+{
+	*this = arg;
+}
+
+httplib::JSON::JSON(int arg)
+{
+	*this = arg;
+}
+
+httplib::JSON::JSON(double arg)
+{
+	*this = arg;
+}
+
+httplib::JSON::JSON(bool arg)
+{
+	*this = arg;
+}
+
 httplib::JSON& httplib::JSON::operator=(const httplib::JSONObject &arg)
 {
 	is_array = false;
@@ -51,6 +71,34 @@ httplib::JSON& httplib::JSON::operator=(const httplib::JSONArray &arg)
 {
 	is_array = true;
 	json = new JSONArray(arg);
+	return *this;
+}
+
+httplib::JSON& httplib::JSON::operator=(const char* arg)
+{
+	is_array = false;
+	json = new JSONObject(arg);
+	return *this;
+}
+
+httplib::JSON& httplib::JSON::operator=(int arg)
+{
+	is_array = false;
+	json = new JSONObject(arg);
+	return *this;
+}
+
+httplib::JSON& httplib::JSON::operator=(double arg)
+{
+	is_array = false;
+	json = new JSONObject(arg);
+	return *this;
+}
+
+httplib::JSON& httplib::JSON::operator=(bool arg)
+{
+	is_array = false;
+	json = new JSONObject(arg);
 	return *this;
 }
 

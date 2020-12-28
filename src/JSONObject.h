@@ -1,7 +1,6 @@
 #ifndef RQJSON_OBJECT_H
 #define RQJSON_OBJECT_H
 
-#include "JSONValue.h"
 #include "JSON.h"
 
 #include <initializer_list>
@@ -15,18 +14,25 @@ namespace httplib{
 	class JSONObject
 	{
 	private:
+
+	public:
 		std::string str;
 		std::unordered_map<std::string, JSON> map;
 
-	public:
 		JSONObject();
 		~JSONObject();
 		JSONObject(const JSONObject &src);
 
-		JSONObject(const httplib::JSONValue &arg);
+		JSONObject(const char *arg);
+		JSONObject(int arg);
+		JSONObject(double arg);
+		JSONObject(bool arg);
 		JSONObject(std::initializer_list<std::pair<std::string, JSON>> ls);
 
-		JSONObject& operator=(const httplib::JSONValue &arg);
+		JSONObject& operator=(const char *arg);
+		JSONObject& operator=(int arg);
+		JSONObject& operator=(double arg);
+		JSONObject& operator=(bool arg);
 		JSONObject& operator=(std::initializer_list<std::pair<std::string, JSON>> ls);
 
 	};

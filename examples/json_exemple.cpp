@@ -5,8 +5,8 @@
 
 int main()
 {
-	httplib::JSON obj = {{"name", "runqi"}, {"age", "26"}};
-	// httplib::JSONObject obj = ;
-	std::cout << obj.json_str << std::endl;
+	httplib::JSONObject obj = {{"name", "runqi"}, {"age", "26"}};
+	// httplib::JSON obj = "aab";
+	std::cout << obj.map.size() << std::endl;
 	return 0;
 }

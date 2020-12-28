@@ -30,9 +30,17 @@ namespace httplib{
 
 		JSON(const httplib::JSONObject &arg);
 		JSON(const httplib::JSONArray &arg);
+		JSON(const char *arg);
+		JSON(int arg);
+		JSON(double arg);
+		JSON(bool arg);
 
 		JSON& operator=(const httplib::JSONObject &arg);
 		JSON& operator=(const httplib::JSONArray &arg);
+		JSON& operator=(const char *arg);
+		JSON& operator=(int arg);
+		JSON& operator=(double arg);
+		JSON& operator=(bool arg);
 
 		JSONArray& operator[](int idx);
 		JSONObject& operator[](const std::string key);

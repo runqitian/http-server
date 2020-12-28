@@ -6,6 +6,6 @@
 #include "JSON.h"
 #include "JSONObject.h"
 #include "JSONArray.h"
-#include "JSONBase.h"
+#include "JSONValue.h"
 
 #endif
