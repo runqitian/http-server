@@ -1,6 +1,6 @@
 #include "JSON.h"
-// #include "JSONObject.h"
-// #include "JSONArray.h"
+#include "JSONObject.h"
+#include "JSONArray.h"
 
 #include <iostream>
 #include <string>

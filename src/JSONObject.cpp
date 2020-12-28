@@ -1,3 +1,5 @@
+#include "JSONObject.h"
+#include "JSONValue.h"
 #include "JSON.h"
 
 httplib::JSONObject::JSONObject()
