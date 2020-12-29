@@ -31,9 +31,9 @@ namespace httplib
 		void setForm(const std::string &key, const std::string &val);
 		std::string getForm(const std::string &key);
 
-		void setBody(const char *pbody, int len);
+		void setBody(const char *pbody, size_t len);
 		const char* getBodyPointer();
-		int getBodyLen();
+		size_t getBodyLen();
 
 		void decodeFormUrlencoded();
 
@@ -45,7 +45,7 @@ namespace httplib
 		std::unordered_map<std::string, std::string> params;
 		std::unordered_map<std::string, std::string> form;
 		char *body = nullptr;
-		int body_len = 0;
+		size_t body_len = 0;
 
 	};
 }

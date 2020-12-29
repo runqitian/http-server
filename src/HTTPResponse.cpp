@@ -27,7 +27,7 @@ httplib::HTTPResponse::~HTTPResponse()
 	free(body);
 }
 
-int httplib::HTTPResponse::serialize(char **pdes)
+size_t httplib::HTTPResponse::serialize(char **pdes)
 {
 	std::string output;
 	output += version + " " + status_code + " " + status_msg + "\r\n";
@@ -58,7 +58,7 @@ std::string httplib::HTTPResponse::getHeader(const std::string &key)
 	return header[key];
 }
 
-void httplib::HTTPResponse::setBody(const char *pbody, int len)
+void httplib::HTTPResponse::setBody(const char *pbody, size_t len)
 {
 	body = (char *)malloc(sizeof(char)*len);
 	memcpy(body, pbody, len);
@@ -81,7 +81,7 @@ void httplib::HTTPResponse::createHtmlResponse(const std::string &text)
 	setStatus("200", "OK");
 	setHeader("Content-Type", "text/html; charset=utf-8");
 
-	int len = text.size();
+	size_t len = text.size();
 	setHeader("Content-Length", std::to_string(len));
 	setBody(text.c_str(), len);
 }
@@ -91,7 +91,7 @@ void httplib::HTTPResponse::create404Response()
 	setStatus("404", "Not Found");
 	setHeader("Content-Type", "text/html; charset=utf-8");
 
-	int len = strlen(MSG404);
+	size_t len = strlen(MSG404);
 	setHeader("Content-Length", std::to_string(len));
 	setBody(MSG404, len);
 }
@@ -101,7 +101,7 @@ void httplib::HTTPResponse::createJSONResponse(const JSON &json)
 	setStatus("200", "OK");
 	setHeader("Content-Type", "application/json");
 	std::string text = json.toString();
-	int len = text.size();
+	size_t len = text.size();
 	setHeader("Content-Length", std::to_string(len));
 	setBody(text.c_str(), len);
 }
