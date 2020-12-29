@@ -4,7 +4,7 @@ A simple http server implemented with c++
 ## Use Instruction
 requirements:
 * Unix based system
-* c++ 11 and above
+* g++ with c++11 or above
 
 Compile:
 ```
@@ -17,27 +17,31 @@ Compile:
 
 ## Examples:
 ```
-// create a server object
+// create srv
 httplib::Server srv;
 
-// registry your url
+// register url
+// get request
 srv.Get("/", [](httplib::HTTPRequest &req, httplib::HTTPResponse &resp){
     std::string s = "hello, ";
     s += req.getParam("name");
-    resp.createHtmlResponse(s.c_str());
+    resp.createHtmlResponse(s);
 });
 
+// post request
 srv.Post("/", [](httplib::HTTPRequest &req, httplib::HTTPResponse &resp){
     std::string s = "hello, ";
     s += req.getForm("name");
-    resp.createHtmlResponse(s.c_str());
+    resp.createHtmlResponse(s);
 });
 
-srv.Get("/yes", [](httplib::HTTPRequest &req, httplib::HTTPResponse &resp){
-    resp.createHtmlResponse("Yes!");
+// get request with json
+srv.Get("/json", [](httplib::HTTPRequest &req, httplib::HTTPResponse &resp){
+    httplib::JSON json = {{"message", "hello"}, {"foods",{"fruit", "meat", "vegie"}}};
+    resp.createJSONResponse(json);
 });
 
-// run the server
+// listen
 srv.listen("0.0.0.0", 8000);
 ```
 
@@ -48,3 +52,7 @@ Finished job:
 * for POST request, only support decoding Content-Type: application/x-www-form-urlencoded
 * response content type now support: text/html; charset=utf-8
 
+### Update 12/29/2020
+Finished job:
+* add JSON support, support conversion between json and string.
+* response support application/json
