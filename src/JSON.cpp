@@ -1,6 +1,5 @@
 #include "JSON.h"
 #include "JSONObject.h"
-#include "JSONArray.h"
 
 #include <iostream>
 #include <string>
@@ -9,25 +8,14 @@
 #include <stdexcept>
 
 httplib::JSON::JSON()
-{
-	json = nullptr;
-}
+{}
 
 httplib::JSON::~JSON()
-{
-	// if (is_array)
-	// 	delete (JSONArray*)json;
-	// else
-	// 	delete (JSONObject*)json;
-}
+{}
 
 httplib::JSON::JSON(const JSON &src)
 {
-	if (src.is_array)
-		this -> json = new httplib::JSONArray(*(JSONArray*)src.json);
-	else
-		this -> json = new httplib::JSONObject(*(JSONObject*)src.json);
-	this -> is_array = src.is_array;
+	*this = src;
 }
 
 httplib::JSON::JSON(const JSONObject &arg)
@@ -35,88 +23,117 @@ httplib::JSON::JSON(const JSONObject &arg)
 	*this = arg;
 }
 
-httplib::JSON::JSON(const JSONArray &arg)
+httplib::JSON::JSON(std::initializer_list<httplib::JSONObject> ls)
 {
-	*this = arg;
+	*this = ls;
 }
 
-httplib::JSON::JSON(const char *arg)
+httplib::JSON& httplib::JSON::operator=(const httplib::JSON &arg)
 {
-	*this = arg;
-}
-
-httplib::JSON::JSON(int arg)
-{
-	*this = arg;
-}
-
-httplib::JSON::JSON(double arg)
-{
-	*this = arg;
-}
-
-httplib::JSON::JSON(bool arg)
-{
-	*this = arg;
+	httplib::JSONObject::operator=(arg);
+	array = arg.array;
+	is_array = arg.is_array;
+	return *this;
 }
 
 httplib::JSON& httplib::JSON::operator=(const httplib::JSONObject &arg)
 {
+	httplib::JSONObject::operator=(arg);
 	is_array = false;
-	json = new JSONObject(arg);
+	array.clear();
 	return *this;
 }
 
-httplib::JSON& httplib::JSON::operator=(const httplib::JSONArray &arg)
+httplib::JSON& httplib::JSON::operator=(std::initializer_list<httplib::JSONObject> ls)
 {
 	is_array = true;
-	json = new JSONArray(arg);
+	array = ls;
+	str = "";
+	// clear map
+	for (auto each: map)
+	{
+		delete each.second;
+	}
+	map.clear();
 	return *this;
 }
 
-httplib::JSON& httplib::JSON::operator=(const char* arg)
+httplib::JSON& httplib::JSON::operator=(const char *arg)
 {
 	is_array = false;
-	json = new JSONObject(arg);
+	array.clear();
+	httplib::JSONObject::operator=(arg);
 	return *this;
 }
 
 httplib::JSON& httplib::JSON::operator=(int arg)
 {
 	is_array = false;
-	json = new JSONObject(arg);
+	array.clear();
+	httplib::JSONObject::operator=(arg);
 	return *this;
 }
 
 httplib::JSON& httplib::JSON::operator=(double arg)
 {
 	is_array = false;
-	json = new JSONObject(arg);
+	array.clear();
+	httplib::JSONObject::operator=(arg);
 	return *this;
 }
 
 httplib::JSON& httplib::JSON::operator=(bool arg)
 {
 	is_array = false;
-	json = new JSONObject(arg);
+	array.clear();
+	httplib::JSONObject::operator=(arg);
 	return *this;
 }
 
-httplib::JSONArray& httplib::JSON::operator[](int idx)
+httplib::JSON& httplib::JSON::operator=(std::initializer_list<std::pair<const char*, JSON>> ls)
 {
-	if (!is_array){
-		throw std::runtime_error("JSON is not array!");
-	}
-	return *(JSONArray*)json;
+	is_array = false;
+	array.clear();
+	httplib::JSONObject::operator=(ls);
+	return *this;
 }
-httplib::JSONObject& httplib::JSON::operator[](const std::string key)
+
+httplib::JSON& httplib::JSON::operator[](const std::string key)
 {
 	if (is_array)
 		throw std::runtime_error("JSON is array!");
-	return *(JSONObject*)json;
+	httplib::JSON &result = httplib::JSON::operator[](key);
+	return result;
 }
 
-std::string httplib::JSON::serialize()
+httplib::JSONObject& httplib::JSON::operator[](int idx)
 {
-	return "";
+	if (!is_array)
+		throw std::runtime_error("JSON is not array!");
+	if (idx >= array.size())
+		throw std::runtime_error("array idx exceeds.");
+	return array[idx];
+}
+
+std::ostream& httplib::operator<<(std::ostream& os, const JSON &obj)
+{
+	os << obj.toString();
+	return os;
+}
+
+std::string httplib::JSON::toString() const
+{
+	if (is_array)
+	{
+		std::string output = "[";
+		for (auto each: array)
+		{
+			output += each.toString();
+			output += ", ";
+		}
+		output[output.size() - 2] = ']';
+		return output;
+	}
+	// otherwise
+	return httplib::JSONObject::toString();
 }

@@ -2,51 +2,57 @@
 #define RQJSON_H
 
 #include "HTTPRequest.h"
-
-// #include "JSONArray.h"
+#include "JSONObject.h"
 
 #include <initializer_list>
 #include <unordered_map>
 #include <string>
 #include <utility>
+#include <vector>
+#include <iostream>
 /**
 **/
 
 namespace httplib{
-	class JSONArray;
-	
-	class JSONObject;
 
-	class JSON
+	class JSON : public JSONObject
 	{
 	private:
-		bool is_array = false;
-		void *json;
 
 	public:
+		bool is_array = false;
+		std::vector<JSONObject> array;
+
+		using JSONObject::JSONObject;
+		using JSONObject::operator=;
+		using JSONObject::operator[];
+		// using JSONObject::operator<<;
+		using JSONObject::toString;
+
 		JSON();
 		~JSON();
 		JSON(const JSON &src);
-
 		JSON(const httplib::JSONObject &arg);
-		JSON(const httplib::JSONArray &arg);
-		JSON(const char *arg);
-		JSON(int arg);
-		JSON(double arg);
-		JSON(bool arg);
+		JSON(std::initializer_list<JSONObject> ls);
 
 		JSON& operator=(const httplib::JSONObject &arg);
-		JSON& operator=(const httplib::JSONArray &arg);
+		JSON& operator=(const httplib::JSON &arg);
+		JSON& operator=(std::initializer_list<JSONObject> ls);
+
 		JSON& operator=(const char *arg);
 		JSON& operator=(int arg);
 		JSON& operator=(double arg);
 		JSON& operator=(bool arg);
+		JSON& operator=(std::initializer_list<std::pair<const char*, JSON>> ls);
 
-		JSONArray& operator[](int idx);
-		JSONObject& operator[](const std::string key);
+		JSON& operator[](const std::string key);
+		JSONObject& operator[](int idx);
 
-		std::string serialize();
+		friend std::ostream& operator<<(std::ostream& os, const JSON &obj);
+
+		std::string toString() const;
 	};
+	std::ostream& operator<<(std::ostream& os, const JSON &obj);
 }
 
 #endif
