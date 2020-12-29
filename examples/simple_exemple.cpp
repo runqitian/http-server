@@ -7,13 +7,13 @@ int main(){
 	srv.Get("/", [](httplib::HTTPRequest &req, httplib::HTTPResponse &resp){
 		std::string s = "hello, ";
 		s += req.getParam("name");
-		resp.createHtmlResponse(s.c_str());
+		resp.createHtmlResponse(s);
 	});
 	
 	srv.Post("/", [](httplib::HTTPRequest &req, httplib::HTTPResponse &resp){
 		std::string s = "hello, ";
 		s += req.getForm("name");
-		resp.createHtmlResponse(s.c_str());
+		resp.createHtmlResponse(s);
 	});
 
 	srv.Get("/yes", [](httplib::HTTPRequest &req, httplib::HTTPResponse &resp){

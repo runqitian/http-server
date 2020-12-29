@@ -12,6 +12,9 @@ namespace httplib {
 		int sockfd;
 
 		HTTPSocket(int sockfd);
+		HTTPSocket(HTTPSocket& sock) = delete;
+		~HTTPSocket();
+
 		httplib::HTTPRequest* readRequest();
 		void sendResponse(httplib::HTTPResponse &resp);
 	private:

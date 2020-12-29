@@ -10,6 +10,8 @@ namespace httplib
 	{
 	public:
 		HTTPResponse();
+		HTTPResponse(HTTPResponse &resp);
+		~HTTPResponse();
 
 		int serialize(char **pdes);
 
@@ -23,8 +25,6 @@ namespace httplib
 
 		void createHtmlResponse(const std::string &text);
 		void create404Response();
-
-	private:
 
 		const static char *MSG404;
 		std::string version;

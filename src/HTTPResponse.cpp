@@ -10,6 +10,22 @@ const char *httplib::HTTPResponse::MSG404 = "404 NOT FOUND";
 httplib::HTTPResponse::HTTPResponse()
 {}
 
+httplib::HTTPResponse::HTTPResponse(HTTPResponse &resp)
+{
+	version = resp.version;
+	status_code = resp.status_code;
+	status_msg = resp.status_msg;
+	header = resp.header;
+	body_len = resp.body_len;
+	body = (char *)malloc(sizeof(char) * body_len);
+	memcpy(body, resp.body, body_len);
+}
+
+httplib::HTTPResponse::~HTTPResponse()
+{
+	free(body);
+}
+
 int httplib::HTTPResponse::serialize(char **pdes)
 {
 	std::string output;

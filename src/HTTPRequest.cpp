@@ -8,6 +8,24 @@
 httplib::HTTPRequest::HTTPRequest()
 {}
 
+httplib::HTTPRequest::HTTPRequest(HTTPRequest& req)
+{
+	version = req.version;
+	type = req.type;
+	url = req.url;
+	header = req.header;
+	params = req.params;
+	form = req.form;
+	body_len = req.body_len;
+	body = (char *)malloc(sizeof(char) * body_len);
+	memcpy(body, req.body, body_len);
+}
+
+httplib::HTTPRequest::~HTTPRequest()
+{
+	free(body);
+}
+
 std::string httplib::HTTPRequest::toString(){
 	std::string output;
 	output += type + " " + url + " " + version + "\n";

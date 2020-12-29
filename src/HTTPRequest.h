@@ -10,6 +10,8 @@ namespace httplib
 	{
 	public:
 		HTTPRequest();
+		HTTPRequest(HTTPRequest& req);
+		~HTTPRequest();
 
 		std::string toString();
 
@@ -35,7 +37,7 @@ namespace httplib
 
 		void decodeFormUrlencoded();
 
-	private:
+
 		std::string version;
 		std::string type;
 		std::string url;

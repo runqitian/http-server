@@ -17,6 +17,11 @@ httplib::HTTPSocket::HTTPSocket(int sockfd)
 	sbuff_size = 0;
 }
 
+httplib::HTTPSocket::~HTTPSocket()
+{
+	free(sbuff);
+}
+
 httplib::HTTPRequest* httplib::HTTPSocket::readRequest()
 {
 	httplib::HTTPRequest *req = new httplib::HTTPRequest();
