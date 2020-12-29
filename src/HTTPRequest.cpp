@@ -206,3 +206,9 @@ void httplib::HTTPRequest::decodeFormUrlencoded()
 		this -> setForm(key, val);
 	}
 }
+
+void httplib::HTTPRequest::decodeMultiFormData(std::string boundary)
+{
+	const char *p = body;
+	
+}

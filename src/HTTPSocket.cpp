@@ -9,6 +9,7 @@
 #include <string>
 #include <stdexcept>
 #include <iostream>
+#include <regex>
 
 httplib::HTTPSocket::HTTPSocket(int sockfd)
 :sockfd(sockfd)
@@ -122,9 +123,24 @@ void httplib::HTTPSocket::_extractBodyInfo(httplib::HTTPRequest &req){
 	}
 	else if (req.getType() == "POST")
 	{
-		if (req.getHeader("Content-Type") == "application/x-www-form-urlencoded")
+
+		std::string content_type = req.getHeader("Content-Type");
+		if (content_type == "application/x-www-form-urlencoded")
 		{
 			req.decodeFormUrlencoded();
+		}
+		else if (std::regex_match(content_type, std::regex("^multipart/form-data;.*")))
+		{
+			std::smatch m;
+			std::string boundary;
+			if (std::regex_search(content_type, m, std::regex("boundary=(.*)")))
+			{
+				boundary = m[1];
+			}
+			else{
+				throw std::runtime_error("Content-Type: multipart/form-data invalid");
+			}
+			req.decodeMultiFormData(boundary);
 		}
 	}
 }

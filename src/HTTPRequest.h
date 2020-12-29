@@ -36,6 +36,7 @@ namespace httplib
 		size_t getBodyLen();
 
 		void decodeFormUrlencoded();
+		void decodeMultiFormData(std::string boundary);
 
 
 		std::string version;
