@@ -1,4 +1,5 @@
 #include "HTTPResponse.h"
+#include "JSON.h"
 
 #include <cstring>
 #include <cstdlib>
@@ -93,4 +94,14 @@ void httplib::HTTPResponse::create404Response()
 	int len = strlen(MSG404);
 	setHeader("Content-Length", std::to_string(len));
 	setBody(MSG404, len);
+}
+
+void httplib::HTTPResponse::createJSONResponse(const JSON &json)
+{
+	setStatus("200", "OK");
+	setHeader("Content-Type", "application/json");
+	std::string text = json.toString();
+	int len = text.size();
+	setHeader("Content-Length", std::to_string(len));
+	setBody(text.c_str(), len);
 }

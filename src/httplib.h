@@ -5,5 +5,6 @@
 #include "HTTPSocket.h"
 #include "JSON.h"
 #include "JSONObject.h"
+#include "JSONParser.h"
 
 #endif

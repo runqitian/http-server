@@ -43,6 +43,12 @@ namespace httplib{
 
 		friend std::ostream& operator<<(std::ostream& os, const JSONObject &obj);
 
+		void set(std::string key, const httplib::JSON &val);
+		void set(std::string key, const char *val);
+		void set(std::string key, int val);
+		void set(std::string key, double val);
+		void set(std::string key, bool val);
+
 		std::string toString() const;
 	};
 	std::ostream& operator<<(std::ostream& os, const JSONObject &obj);

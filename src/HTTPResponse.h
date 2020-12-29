@@ -1,6 +1,8 @@
 #ifndef HTTPRESPONSE_H
 #define HTTPRESPONSE_H
 
+#include "JSON.h"
+
 #include <string>
 #include <unordered_map>
 
@@ -25,6 +27,7 @@ namespace httplib
 
 		void createHtmlResponse(const std::string &text);
 		void create404Response();
+		void createJSONResponse(const JSON &json);
 
 		const static char *MSG404;
 		std::string version;

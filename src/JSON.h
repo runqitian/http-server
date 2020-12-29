@@ -28,6 +28,7 @@ namespace httplib{
 		using JSONObject::operator[];
 		// using JSONObject::operator<<;
 		using JSONObject::toString;
+		using JSONObject::set;
 
 		JSON();
 		~JSON();
@@ -50,6 +51,7 @@ namespace httplib{
 
 		friend std::ostream& operator<<(std::ostream& os, const JSON &obj);
 
+		void append(const JSONObject &obj);
 		std::string toString() const;
 	};
 	std::ostream& operator<<(std::ostream& os, const JSON &obj);

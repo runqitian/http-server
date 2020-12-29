@@ -16,9 +16,11 @@ int main(){
 		resp.createHtmlResponse(s);
 	});
 
-	srv.Get("/yes", [](httplib::HTTPRequest &req, httplib::HTTPResponse &resp){
-		resp.createHtmlResponse("Yes!");
+	srv.Get("/json", [](httplib::HTTPRequest &req, httplib::HTTPResponse &resp){
+		httplib::JSON json = {{"message", "hello"}, {"foods",{"fruit", "meat", "vegie"}}};
+		resp.createJSONResponse(json);
 	});
+
 
 	srv.listen("0.0.0.0", 8000);
 	return 0;

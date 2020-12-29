@@ -114,7 +114,7 @@ httplib::JSONObject& httplib::JSONObject::operator=(bool arg)
 	}
 	map.clear();
 	// add new string
-	str = std::to_string(arg);
+	str = arg ? "true" : "false";
 	return *this;
 }
 
@@ -150,6 +150,32 @@ std::ostream& httplib::operator<<(std::ostream& os, const JSONObject &obj)
 	os << obj.toString();
 	return os;
 }
+
+void httplib::JSONObject::set(std::string key, const httplib::JSON &val)
+{
+	map[key] = new JSON(val);
+}
+
+void httplib::JSONObject::set(std::string key, const char *val)
+{
+	map[key] = new JSON(val);
+}
+
+void httplib::JSONObject::set(std::string key, int val)
+{
+	map[key] = new JSON(val);
+}
+
+void httplib::JSONObject::set(std::string key, double val)
+{
+	map[key] = new JSON(val);
+}
+
+void httplib::JSONObject::set(std::string key, bool val)
+{
+	map[key] = new JSON(val);
+}
+
 
 std::string httplib::JSONObject::toString() const
 {
