@@ -102,7 +102,7 @@ httplib::JSON& httplib::JSON::operator[](const std::string key)
 {
 	if (is_array)
 		throw std::runtime_error("JSON is array!");
-	httplib::JSON &result = httplib::JSON::operator[](key);
+	httplib::JSON &result = httplib::JSONObject::operator[](key);
 	return result;
 }
 
@@ -120,6 +120,24 @@ std::ostream& httplib::operator<<(std::ostream& os, const JSON &obj)
 	os << obj.toString();
 	return os;
 }
+
+void httplib::JSON::append(const JSONObject &obj)
+{
+	if (is_array)
+		array.push_back(obj);
+	else{
+		is_array = true;
+		str = "";
+		// clear map
+		for (auto each: map)
+		{
+			delete each.second;
+		}
+		map.clear();
+		array.push_back(obj);
+	}
+}
+
 
 std::string httplib::JSON::toString() const
 {
