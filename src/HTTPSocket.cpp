@@ -9,6 +9,7 @@
 #include <string>
 #include <stdexcept>
 #include <iostream>
+#include <regex>
 
 httplib::HTTPSocket::HTTPSocket(int sockfd)
 :sockfd(sockfd)
@@ -98,7 +99,7 @@ void httplib::HTTPSocket::_readBody(httplib::HTTPRequest &req)
 	if (req.getHeader("Content-Length") != ""){
 		// read body bytes from socket
 		size_t test_tmp;
-		int cont_len = std::stoi(req.getHeader("Content-Length"), &test_tmp, 10);
+		size_t cont_len = std::stol(req.getHeader("Content-Length"), &test_tmp, 10);
 		if (test_tmp != req.getHeader("Content-Length").size()){
 			throw std::runtime_error("request header format invalid! Contetn-Length invalid!");
 		}
@@ -122,9 +123,24 @@ void httplib::HTTPSocket::_extractBodyInfo(httplib::HTTPRequest &req){
 	}
 	else if (req.getType() == "POST")
 	{
-		if (req.getHeader("Content-Type") == "application/x-www-form-urlencoded")
+
+		std::string content_type = req.getHeader("Content-Type");
+		if (content_type == "application/x-www-form-urlencoded")
 		{
 			req.decodeFormUrlencoded();
+		}
+		else if (std::regex_match(content_type, std::regex("^multipart/form-data;.*")))
+		{
+			std::smatch m;
+			std::string boundary;
+			if (std::regex_search(content_type, m, std::regex("boundary=(.*)")))
+			{
+				boundary = m[1];
+			}
+			else{
+				throw std::runtime_error("Content-Type: multipart/form-data invalid");
+			}
+			req.decodeMultiFormData(boundary);
 		}
 	}
 }
@@ -132,7 +148,7 @@ void httplib::HTTPSocket::_extractBodyInfo(httplib::HTTPRequest &req){
 void httplib::HTTPSocket::sendResponse(httplib::HTTPResponse &resp)
 {
 	char *msg;
-	int len = resp.serialize(&msg);
+	size_t len = resp.serialize(&msg);
 	sendBytes(msg, len);
 	free(msg);
 }
@@ -146,7 +162,7 @@ std::string httplib::HTTPSocket::readline()
 	}
 	std::string msg;
 	bool lf = false;
-	int idx = 0;
+	size_t idx = 0;
 	while(!lf) {
 		while(idx < sbuff_size){
 			if (sbuff[idx] == '\n'){
@@ -170,7 +186,7 @@ std::string httplib::HTTPSocket::readline()
 	return msg;
 }
 
-void httplib::HTTPSocket::readBytes(char *dest, int len)
+void httplib::HTTPSocket::readBytes(char *dest, size_t len)
 {
 	if (len == 0){
 		return;
@@ -180,7 +196,7 @@ void httplib::HTTPSocket::readBytes(char *dest, int len)
 			throw std::runtime_error("Connection closed!");
 		}
 	}
-	int need = len;
+	size_t need = len;
 	char *p = dest;
 	while (sbuff_size < need){
 		memcpy(p, sbuff, sbuff_size);
@@ -195,12 +211,12 @@ void httplib::HTTPSocket::readBytes(char *dest, int len)
 	sbuff_size = sbuff_size - need;
 }
 
-void httplib::HTTPSocket::sendBytes(const char *msg, const unsigned int len)
+void httplib::HTTPSocket::sendBytes(const char *msg, const size_t len)
 {
-	unsigned int remain = len;
+	size_t remain = len;
 	const char *p = msg;
 	while(remain > BUFF_SIZE){
-		int num = send(sockfd, p, BUFF_SIZE, 0);
+		size_t num = send(sockfd, p, BUFF_SIZE, 0);
 		if (num == -1){
 			throw std::runtime_error("Sending bytes error!");
 		}
@@ -208,7 +224,7 @@ void httplib::HTTPSocket::sendBytes(const char *msg, const unsigned int len)
 		remain -= num;
 	}
 	if (remain > 0){
-		int num = send(sockfd, p, remain, 0);
+		size_t num = send(sockfd, p, remain, 0);
 		if (num == -1){
 			throw std::runtime_error("Sending bytes error!");
 		}

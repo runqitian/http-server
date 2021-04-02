@@ -15,7 +15,7 @@ namespace httplib
 		HTTPResponse(HTTPResponse &resp);
 		~HTTPResponse();
 
-		int serialize(char **pdes);
+		size_t serialize(char **pdes);
 
 		void setVersion(const std::string &version);
 		void setStatus(const std::string &code, const std::string &msg);
@@ -23,7 +23,7 @@ namespace httplib
 		void setHeader(const std::string &key, const std::string &val);
 		std::string getHeader(const std::string &key);
 
-		void setBody(const char *pbody, int len);
+		void setBody(const char *pbody, size_t len);
 
 		void createHtmlResponse(const std::string &text);
 		void create404Response();
@@ -36,7 +36,7 @@ namespace httplib
 		std::unordered_map<std::string, std::string> header;
 
 		char *body = nullptr;
-		int body_len = 0;
+		size_t body_len = 0;
 	};
 }
 

@@ -153,11 +153,11 @@ const char* httplib::HTTPRequest::getBodyPointer()
 	return body;
 }
 
-int httplib::HTTPRequest::getBodyLen(){
+size_t httplib::HTTPRequest::getBodyLen(){
 	return body_len;
 }
 
-void httplib::HTTPRequest::setBody(const char *pbody, const int len){
+void httplib::HTTPRequest::setBody(const char *pbody, const size_t len){
 	if (pbody == nullptr){
 		free(body);
 		body = nullptr;
@@ -205,4 +205,10 @@ void httplib::HTTPRequest::decodeFormUrlencoded()
 	if (!readKey){
 		this -> setForm(key, val);
 	}
+}
+
+void httplib::HTTPRequest::decodeMultiFormData(std::string boundary)
+{
+	const char *p = body;
+	
 }

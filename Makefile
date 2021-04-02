@@ -1,6 +1,7 @@
 CC = g++
-COMPILE_FLAGS = -c -fPIC -std=c++17
-LD_FLAGS = -pthread -shared -Wall
+COMPILE_FLAGS = -c -fPIC -std=c++11
+# LD_FLAGS = -pthread -shared -Wall 
+# use static link instead
 
 SRC_DIR = src
 OBJ_DIR = build
@@ -12,12 +13,12 @@ OBJS = $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
 INCS = $(patsubst $(SRC_DIR)/%.h,$(BIN_DIR)/include/%.h,$(HDRS))
 DEPS = $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.d,$(SRCS))
 
-all: $(BIN_DIR)/libhttplib.so $(INCS)
+all: $(BIN_DIR)/libhttplib.a $(INCS)
 
-$(BIN_DIR)/libhttplib.so: $(OBJS)
+$(BIN_DIR)/libhttplib.a: $(OBJS)
 	@echo "linking $@"
 	@mkdir -p bin
-	@$(CC) $(LD_FLAGS) -o $@ $^
+	@ar rcs $@ $^
 
 $(BIN_DIR)/include/%.h: $(SRC_DIR)/%.h
 	@echo "copying $@"

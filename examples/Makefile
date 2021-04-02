@@ -1,5 +1,5 @@
 CC = g++
-CC_FLAGS = -Wall -L../bin -Wl,-rpath=../bin
+CC_FLAGS = -Wall -L../bin 
 
 SRCS = $(wildcard ./*.cpp)
 BINS = $(patsubst %.cpp,%.o,$(SRCS))

@@ -18,13 +18,13 @@ namespace httplib {
 		httplib::HTTPRequest* readRequest();
 		void sendResponse(httplib::HTTPResponse &resp);
 	private:
-		static const int BUFF_SIZE = 64 * 1024;
+		static const size_t BUFF_SIZE = 64 * 1024;
 		char * sbuff;
-		int sbuff_size;
+		size_t sbuff_size;
 
 		std::string readline();
-		void readBytes(char *dest, int len);
-		void sendBytes(const char *msg, const unsigned int len);
+		void readBytes(char *dest, size_t len);
+		void sendBytes(const char *msg, const size_t len);
 
 		void _readHeader(httplib::HTTPRequest &req);
 		void _readBody(httplib::HTTPRequest &req);
