@@ -1,4 +1,5 @@
 bin
 build
 examples/*.o
+**/.DS_Store
 
